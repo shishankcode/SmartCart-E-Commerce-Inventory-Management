@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ShopEase | Good Finds. Better Days.</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="announcement">
+    ✦ Free shipping on orders above ₹999
+  </div>
+
+  <header class="header">
+    <a href="#" class="logo" onclick="showPage('shop')">
+      shop<span>ease</span>
+      <small>GOOD FINDS. BETTER DAYS.</small>
+    </a>
+
+    <nav>
+      <button class="nav-btn active" onclick="showPage('shop')">Shop</button>
+      <button class="nav-btn" onclick="showPage('orders')">My Orders</button>
+      <button class="nav-btn" onclick="showPage('admin')">Admin</button>
+    </nav>
+
+    <button class="cart-button" onclick="openCart()">
+      🛒 Cart <span id="cartCount">0</span>
+    </button>
+  </header>
+
+  <main>
+    <!-- SHOP PAGE -->
+    <section id="shopPage" class="page">
+      <section class="hero">
+        <div class="hero-content">
+          <p class="eyebrow">THE EVERYDAY EDIT</p>
+          <h1>Good things.<br><em>Great finds.</em></h1>
+          <p class="hero-description">
+            Thoughtful essentials for your space, your style,
+            and everything in between.
+          </p>
+          <button class="primary-btn" onclick="scrollToProducts()">
+            Explore collection ↗
+          </button>
+          <p class="social-proof">✦ Loved by everyday shoppers</p>
+        </div>
+
+        <div class="hero-image">
+          <img
+            src="https://images.unsplash.com/photo-1490312278390-ab64016e0aa9?auto=format&fit=crop&w=1000&q=85"
+            alt="Minimal modern living room"
+          >
+          <div class="image-label">NEW SEASON<br><strong>JUST LANDED</strong></div>
+        </div>
+      </section>
+
+      <section class="benefits">
+        <div><span>✦</span><strong>Curated quality</strong><small>Good stuff, no fuss</small></div>
+        <div><span>↗</span><strong>Quick delivery</strong><small>To your doorstep</small></div>
+        <div><span>♡</span><strong>Easy returns</strong><small>Shop with confidence</small></div>
+        <div><span>☻</span><strong>Here to help</strong><small>We're happy to help</small></div>
+      </section>
+
+      <section class="catalog" id="catalog">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">A FEW GOOD THINGS</p>
+            <h2>Shop the collection<span>.</span></h2>
+            <p>Useful, lovely, and a little bit unexpected.</p>
+          </div>
+          <button class="text-btn" onclick="resetFilters()">View all products →</button>
+        </div>
+
+        <div class="filters">
+          <input
+            type="search"
+            id="searchInput"
+            placeholder="⌕  Search something lovely..."
+            oninput="renderProducts()"
+          >
+
+          <select id="categoryFilter" onchange="renderProducts()">
+            <option value="All">All categories</option>
+            <option value="Electronics">Tech</option>
+            <option value="Accessories">Accessories</option>
+            <option value="Home">Home</option>
+          </select>
+
+          <select id="sortFilter" onchange="renderProducts()">
+            <option value="featured">Featured</option>
+            <option value="low">Price: low to high</option>
+            <option value="high">Price: high to low</option>
+            <option value="name">Name: A–Z</option>
+          </select>
+        </div>
+
+        <p class="results-count" id="resultsCount">Our favourite finds</p>
+        <div class="product-grid" id="productGrid"></div>
+      </section>
+    </section>
+
+    <!-- ORDERS PAGE -->
+    <section id="ordersPage" class="page hidden">
+      <div class="page-heading">
+        <p class="eyebrow">YOUR SHOPPING STORY</p>
+        <h1>My orders<span>.</span></h1>
+        <p>Your demo orders, all in one place.</p>
+      </div>
+      <div id="ordersList"></div>
+    </section>
+
+    <!-- ADMIN PAGE -->
+    <section id="adminPage" class="page hidden">
+      <div class="page-heading">
+        <p class="eyebrow">THE CONTROL ROOM</p>
+        <h1>Store dashboard<span>.</span></h1>
+        <p>Manage products and keep your inventory organised.</p>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card"><small>Total products</small><h2 id="totalProducts">0</h2></div>
+        <div class="stat-card"><small>Units in stock</small><h2 id="totalStock">0</h2></div>
+        <div class="stat-card"><small>Low stock items</small><h2 id="lowStock">0</h2></div>
+        <div class="stat-card"><small>Demo orders</small><h2 id="totalOrders">0</h2></div>
+      </div>
+
+      <div class="admin-layout">
+        <form id="productForm" class="panel">
+          <h2 id="formTitle">Add a product</h2>
+          <input type="hidden" id="editId">
+
+          <label>Product name
+            <input id="productName" required maxlength="80" placeholder="Product name">
+          </label>
+
+          <label>Price (₹)
+            <input id="productPrice" type="number" min="1" required placeholder="1499">
+          </label>
+
+          <label>Stock quantity
+            <input id="productStock" type="number" min="0" required placeholder="10">
+          </label>
+
+          <label>Category
+            <select id="productCategory">
+              <option>Electronics</option>
+              <option>Accessories</option>
+              <option>Home</option>
+            </select>
+          </label>
+
+          <label>Product emoji
+            <input id="productEmoji" maxlength="8" placeholder="🎧">
+          </label>
+
+          <button class="primary-btn" type="submit" id="saveProductBtn">
+            Add product ＋
+          </button>
+          <button class="secondary-btn hidden" type="button" id="cancelEditBtn" onclick="resetProductForm()">
+            Cancel editing
+          </button>
+
+          <small class="form-note">Frontend demo: changes are stored in this browser.</small>
+        </form>
+
+        <div class="panel inventory-panel">
+          <h2>Inventory</h2>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Product</th><th>Price</th><th>Stock</th><th>Actions</th></tr>
+              </thead>
+              <tbody id="inventoryBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel recent-orders">
+        <h2>Recent orders</h2>
+        <div id="adminOrdersList"></div>
+      </div>
+    </section>
+  </main>
+
+  <!-- CART DRAWER -->
+  <div id="overlay" class="overlay hidden" onclick="closeCart()"></div>
+
+  <aside id="cartDrawer" class="cart-drawer">
+    <div class="drawer-heading">
+      <div>
+        <p class="eyebrow">YOUR LITTLE FINDS</p>
+        <h2>Your cart <span id="drawerCartCount">(0)</span></h2>
+      </div>
+      <button class="close-btn" onclick="closeCart()" aria-label="Close cart">×</button>
+    </div>
+
+    <div id="cartItems" class="cart-items"></div>
+
+    <div id="emptyCart" class="empty-cart hidden">
+      <div class="empty-icon">♡</div>
+      <h3>Your cart is feeling lonely.</h3>
+      <p>Let's find it a few good things.</p>
+      <button class="primary-btn" onclick="closeCart();showPage('shop')">Explore the shop →</button>
+    </div>
+
+    <div id="cartSummary" class="cart-summary">
+      <div class="summary-row"><span>Subtotal</span><strong id="subtotal">₹0</strong></div>
+      <div class="summary-row"><span>Shipping</span><strong id="shipping">₹0</strong></div>
+      <div class="summary-row total-row"><span>Total</span><strong id="total">₹0</strong></div>
+      <p class="form-note">Free shipping on orders above ₹999.</p>
+      <button class="primary-btn checkout-btn" onclick="openCheckout()">Continue to checkout →</button>
+    </div>
+  </aside>
+
+  <!-- CHECKOUT MODAL -->
+  <div id="checkoutModal" class="modal hidden">
+    <form id="checkoutForm" class="modal-card">
+      <div class="drawer-heading">
+        <div>
+          <p class="eyebrow">ALMOST YOURS</p>
+          <h2>Let's get it to you.</h2>
+        </div>
+        <button type="button" class="close-btn" onclick="closeCheckout()">×</button>
+      </div>
+
+      <label>Full name
+        <input id="customerName" required maxlength="80" placeholder="Your full name">
+      </label>
+      <label>Phone number
+        <input id="customerPhone" required pattern="[0-9]{10}" maxlength="10" placeholder="10-digit mobile">
+      </label>
+      <label>Email address
+        <input id="customerEmail" type="email" required placeholder="you@example.com">
+      </label>
+      <label>Delivery address
+        <textarea id="customerAddress" required rows="2" placeholder="House number, street, area"></textarea>
+      </label>
+      <div class="two-columns">
+        <label>City
+          <input id="customerCity" required placeholder="Your city">
+        </label>
+        <label>PIN code
+          <input id="customerPincode" required pattern="[0-9]{6}" maxlength="6" placeholder="6-digit PIN">
+        </label>
+      </div>
+
+      <div class="checkout-total"><span>Demo order total</span><strong id="checkoutTotal">₹0</strong></div>
+      <p class="demo-notice">This is a frontend demo. No payment will be taken.</p>
+      <button class="primary-btn checkout-btn" type="submit">Place demo order →</button>
+    </form>
+  </div>
+
+  <div id="toast" class="toast"></div>
+
+  <footer class="footer">
+    <a href="#" class="logo" onclick="showPage('shop')">shop<span>ease</span></a>
+    <p>Made for the everyday. © <span id="year"></span> ShopEase</p>
+    <small>College project · Frontend demo</small>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
