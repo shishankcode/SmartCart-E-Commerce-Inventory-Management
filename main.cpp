@@ -3,7 +3,6 @@
 #include <string>
 using namespace std;
 
-// DATA STRUCTURES: Product and Customer
 struct Product {
     int id;
     string name;
@@ -15,16 +14,55 @@ struct Customer {
     int id;
     string name;
     string email;
-    string password; // Demo only: do not use real passwords
+    string password;
 };
 
-// MODULE 1: PRODUCT AND INVENTORY MANAGEMENT
+// Email check: '@' ho, uske baad '.' ho, space na ho
+bool isValidEmail(string email) {
+    int at = email.find('@');
+    int dot = email.rfind('.');
+
+    if (at == -1) return false;          // @ not found
+    if (at == 0) return false;           // @ shoud not be at the beginning
+    if (dot < at) return false;          // . shoud be after @
+    if (dot == (int)email.size() - 1) return false;  // . last mein nahi
+    if (email.find(' ') != string::npos) return false; // space nahi
+    return true;
+}
+
+// Password check: kam se kam 6 characters
+bool isValidPassword(string password) {
+    return password.size() >= 6;
+}
+
+// Name mein kam se kam 1 letter ho (sirf number na ho)
+bool isValidName(string name) {
+    for (int i = 0; i < (int)name.size(); i++) {
+        if (isalpha(name[i])) return true;
+    }
+    return false;
+}
+
+  //lowercase (search ke liye)
+string toLower(string s) {
+    for (int i = 0; i < (int)s.size(); i++) {
+        s[i] = tolower(s[i]);
+    }
+    return s;
+}
+
 class ProductModule {
 private:
     vector<Product> products;
 
 public:
-    // Add a new product
+    int searchIndex(int id) const {
+        for (int i = 0; i < (int)products.size(); i++) {
+            if (products[i].id == id) return i;
+        }
+        return -1;
+    }
+
     void addProduct() {
         Product p;
         cout << "Product ID: ";
@@ -35,15 +73,15 @@ public:
             return;
         }
 
-        cout << "Product name (use _ instead of spaces): ";
+        cout << "Product name: ";
         cin >> p.name;
         cout << "Price: ";
         cin >> p.price;
         cout << "Stock quantity: ";
         cin >> p.stock;
 
-        if (p.price < 0 || p.stock < 0) {
-            cout << "Price and stock cannot be negative.\n";
+        if (p.price < 0 || p.stock < 0 || p.id < 0) {
+            cout << "Price, stock, and ID cannot be negative.\n";
             return;
         }
 
@@ -51,7 +89,6 @@ public:
         cout << "Product added successfully.\n";
     }
 
-    // Display all products
     void showProducts() const {
         if (products.empty()) {
             cout << "No products available.\n";
@@ -65,17 +102,8 @@ public:
         }
     }
 
-    // Linear search by product ID
-    int searchIndex(int id) const {
-        for (int i = 0; i < (int)products.size(); i++) {
-            if (products[i].id == id) {
-                return i;
-            }
-        }
-        return -1;
-    }
-
-    void searchProduct() const {
+    // ID se search
+    void searchById() const {
         int id;
         cout << "Enter product ID: ";
         cin >> id;
@@ -90,7 +118,40 @@ public:
         }
     }
 
-    // Update price and stock
+    // NAME se search - partial match bhi chalega
+    void searchByName() const {
+        string key;
+        cout << "Enter product name: ";
+        cin >> key;
+        key = toLower(key);
+
+        bool found = false;
+        for (int i = 0; i < (int)products.size(); i++) {
+            string name = toLower(products[i].name);
+
+            if (name.find(key) != string::npos) {   // key name ke andar hai?
+                cout << "Found: ID " << products[i].id
+                     << ", " << products[i].name
+                     << ", Price: " << products[i].price
+                     << ", Stock: " << products[i].stock << "\n";
+                found = true;
+            }
+        }
+
+        if (!found) cout << "No product found with that name.\n";
+    }
+
+    // Search menu: ID ya Name
+    void searchProduct() const {
+        int option;
+        cout << "Search by: 1. ID  2. Name\nChoice: ";
+        cin >> option;
+
+        if (option == 1) searchById();
+        else if (option == 2) searchByName();
+        else cout << "Invalid choice.\n";
+    }
+
     void updateProduct() {
         int id;
         cout << "Enter product ID to update: ";
@@ -119,7 +180,6 @@ public:
         cout << "Product updated.\n";
     }
 
-    // Delete a product
     void deleteProduct() {
         int id;
         cout << "Enter product ID to delete: ";
@@ -135,7 +195,7 @@ public:
         cout << "Product deleted.\n";
     }
 
-    // Simple Bubble Sort by price (low to high)
+    // Bubble sort by price
     void sortProductsByPrice() {
         for (int i = 0; i < (int)products.size(); i++) {
             for (int j = 0; j + 1 < (int)products.size() - i; j++) {
@@ -146,17 +206,16 @@ public:
                 }
             }
         }
-
         cout << "Products sorted by price.\n";
         showProducts();
     }
 
-    // Customer-facing product view and search
+    // Guest ke liye Browse Products menu 
     void customerProducts() const {
         int choice;
         do {
             cout << "\n--- Browse Products ---\n";
-            cout << "1. View products\n2. Search product by ID\n0. Back\nChoice: ";
+            cout << "1. View products\n2. Search product\n0. Back\nChoice: ";
             cin >> choice;
 
             if (choice == 1) showProducts();
@@ -184,13 +243,12 @@ public:
     }
 };
 
-// MODULE 2: CUSTOMER AND AUTHENTICATION MANAGEMENT
+//  MODULE 2: CUSTOMERS 
 class CustomerModule {
 private:
     vector<Customer> customers;
 
 public:
-    // Linear search by customer ID
     int searchIndex(int id) const {
         for (int i = 0; i < (int)customers.size(); i++) {
             if (customers[i].id == id) return i;
@@ -203,23 +261,45 @@ public:
         cout << "Choose customer ID: ";
         cin >> c.id;
 
+        if (c.id <= 0) {
+            cout << "ID must be a positive number.\n";
+            return;
+        }
         if (searchIndex(c.id) != -1) {
             cout << "This customer ID already exists.\n";
             return;
         }
 
+        
         cout << "Name (use _ instead of spaces): ";
         cin >> c.name;
-        cout << "Email: ";
+        while (!isValidName(c.name)) {
+            cout << "Name must have at least one letter. Try again: ";
+            cin >> c.name;
+        }
+
+        
+        cout << "Email (example: abc@gmail.com): ";
         cin >> c.email;
-        cout << "Password (demo only): ";
+        while (!isValidEmail(c.email)) {
+            cout << "Invalid email. Try again: ";
+            cin >> c.email;
+        }
+
+        
+        cout << "Password (minimum 6 characters): ";
         cin >> c.password;
+        while (!isValidPassword(c.password)) {
+            cout << "Password too short. Try again: ";
+            cin >> c.password;
+        }
 
         customers.push_back(c);
         cout << "Registration successful. Remember your ID and password.\n";
     }
 
-    void customerLogin() {
+    
+    void customerLogin(ProductModule &products) {
         int id;
         string password;
 
@@ -235,22 +315,27 @@ public:
         }
 
         cout << "\nWelcome, " << customers[index].name << "!\n";
-        customerMenu(customers[index]);
+        customerMenu(customers[index], products);
     }
 
-    void customerMenu(const Customer& customer) {
+    // AFTER Login View products aur Search product
+    void customerMenu(const Customer &customer, ProductModule &products) {
         int choice;
         do {
             cout << "\n--- CUSTOMER PANEL ---\n";
-            cout << "1. View my profile\n2. Browse products\n0. Logout\nChoice: ";
+            cout << "1. View my profile\n";
+            cout << "2. View products\n";
+            cout << "3. Search product\n";
+            cout << "0. Logout\nChoice: ";
             cin >> choice;
 
             if (choice == 1) {
                 cout << "ID: " << customer.id << "\nName: " << customer.name
                      << "\nEmail: " << customer.email << "\n";
             } else if (choice == 2) {
-                // Products are provided by the main program through the helper below.
-                cout << "Use the main menu's customer product browsing option.\n";
+                products.showProducts();
+            } else if (choice == 3) {
+                products.searchProduct();
             } else if (choice != 0) {
                 cout << "Invalid choice.\n";
             }
@@ -290,12 +375,12 @@ public:
     }
 };
 
+//  MAIN
 int main() {
     ProductModule products;
     CustomerModule customers;
     int choice;
 
-    // Demo admin credentials; change these for your presentation.
     const string adminUsername = "admin";
     const string adminPassword = "admin123";
 
@@ -336,7 +421,7 @@ int main() {
         } else if (choice == 2) {
             customers.registerCustomer();
         } else if (choice == 3) {
-            customers.customerLogin();
+            customers.customerLogin(products);
         } else if (choice == 4) {
             products.customerProducts();
         } else if (choice != 0) {
